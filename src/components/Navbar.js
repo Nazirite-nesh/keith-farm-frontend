@@ -2,6 +2,8 @@ import { useNavigate } from "react-router-dom";
 
 function Navbar() {
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user"));
+  const isAdmin = user?.user?.role === "admin";
 
   const logout = () => {
     localStorage.removeItem("user");
@@ -19,6 +21,10 @@ function Navbar() {
         <button style={styles.btn} onClick={() => navigate("/eggs")}>Eggs</button>
         <button style={styles.btn} onClick={() => navigate("/feed")}>Feed</button>
         <button style={styles.btn} onClick={() => navigate("/health")}>Health</button>
+        <button style={styles.btn} onClick={() => navigate("/profitloss")}>P&L</button>
+        {isAdmin && (
+          <button style={styles.btn} onClick={() => navigate("/workers")}>Workers</button>
+        )}
         <button style={styles.logoutBtn} onClick={logout}>Logout</button>
       </div>
     </div>

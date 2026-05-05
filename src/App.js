@@ -7,6 +7,8 @@ import Animals from "./pages/Animals";
 import Eggs from "./pages/Eggs";
 import Feed from "./pages/Feed";
 import Health from "./pages/Health";
+import ProfitLoss from "./pages/ProfitLoss";
+import Workers from "./pages/Workers";
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
         <Route path="/eggs" element={<Eggs />} />
         <Route path="/feed" element={<Feed />} />
         <Route path="/health" element={<Health />} />
+        <Route path="/profitloss" element={<ProfitLoss />} />
+        <Route path="/workers" element={<Workers />} />
       </Routes>
     </BrowserRouter>
   );
