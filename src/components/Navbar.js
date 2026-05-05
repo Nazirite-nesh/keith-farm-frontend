@@ -16,6 +16,7 @@ function Navbar() {
         <button style={styles.btn} onClick={() => navigate("/income")}>Income</button>
         <button style={styles.btn} onClick={() => navigate("/expenses")}>Expenses</button>
         <button style={styles.btn} onClick={() => navigate("/animals")}>Animals</button>
+        <button style={styles.btn} onClick={() => navigate("/eggs")}>Eggs</button>
         <button style={styles.logoutBtn} onClick={logout}>Logout</button>
       </div>
     </div>

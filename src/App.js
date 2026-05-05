@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard";
 import Income from "./pages/Income";
 import Expenses from "./pages/Expenses";
 import Animals from "./pages/Animals";
+import Eggs from "./pages/Eggs";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/income" element={<Income />} />
         <Route path="/expenses" element={<Expenses />} />
         <Route path="/animals" element={<Animals />} />
+        <Route path="/eggs" element={<Eggs />} />
       </Routes>
     </BrowserRouter>
   );
