@@ -11,7 +11,8 @@ function Eggs() {
   });
   const [editId, setEditId] = useState(null);
   const user = JSON.parse(localStorage.getItem("user"));
-  const isAdmin = user?.user?.role === "admin";
+  const role = user?.user?.role || user?.role;
+const isAdmin = role === "admin";
 
   const fetchData = async () => {
     const res = await axios.get(`${API}/api/eggs`);
