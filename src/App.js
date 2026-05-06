@@ -9,7 +9,6 @@ import Feed from "./pages/Feed";
 import Health from "./pages/Health";
 import ProfitLoss from "./pages/ProfitLoss";
 import Workers from "./pages/Workers";
-import background from "./background.jpg";
 
 function App() {
   return (
