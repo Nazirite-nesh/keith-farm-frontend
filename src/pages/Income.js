@@ -10,7 +10,6 @@ function Income() {
   const [form, setForm] = useState({
     source: "", category: "", quantity: "", unitPrice: ""
   });
-  const user = JSON.parse(localStorage.getItem("user"));
 
   const fetchIncome = async () => {
     const res = await axios.get(`${API}/api/income`);
