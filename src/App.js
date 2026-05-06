@@ -9,11 +9,12 @@ import Feed from "./pages/Feed";
 import Health from "./pages/Health";
 import ProfitLoss from "./pages/ProfitLoss";
 import Workers from "./pages/Workers";
+import bg from "../public/Background.png";
 
 function App() {
   return (
     <div style={{
-      backgroundImage: "url('/Background.png')",
+      backgroundImage: `url(${bg})`,
       backgroundSize: "cover",
       backgroundPosition: "center",
       backgroundAttachment: "fixed",
