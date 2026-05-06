@@ -10,6 +10,9 @@ function Feed() {
   const [selected, setSelected] = useState("");
   const [action, setAction] = useState("IN");
   const [qty, setQty] = useState("");
+  const [editId, setEditId] = useState(null);
+  const user = JSON.parse(localStorage.getItem("user"));
+  const isAdmin = user?.user?.role === "admin";
 
   const fetchData = async () => {
     const res = await axios.get(`${API}/api/feed`);
@@ -19,9 +22,31 @@ function Feed() {
   useEffect(() => { fetchData(); }, []);
 
   const addFeed = async () => {
-    await axios.post(`${API}/api/feed`, newFeed);
+    if (editId) {
+      await axios.put(`${API}/api/feed/${editId}`, newFeed);
+      setEditId(null);
+    } else {
+      await axios.post(`${API}/api/feed`, newFeed);
+    }
     setNewFeed({ name: "", unit: "", reorderLevel: "" });
     fetchData();
+  };
+
+  const handleEdit = (item) => {
+    setEditId(item._id);
+    setNewFeed({
+      name: item.name,
+      unit: item.unit,
+      reorderLevel: item.reorderLevel
+    });
+    window.scrollTo(0, 0);
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Delete this feed?")) {
+      await axios.delete(`${API}/api/feed/${id}`);
+      fetchData();
+    }
   };
 
   const updateStock = async () => {
@@ -41,7 +66,6 @@ function Feed() {
       <div style={styles.container}>
         <h2 style={styles.title}>🌽 Feed Inventory</h2>
 
-        {/* Stock Table */}
         <div style={styles.tableWrap}>
           <table style={styles.table}>
             <thead>
@@ -50,6 +74,7 @@ function Feed() {
                 <th>Stock</th>
                 <th>Unit</th>
                 <th>Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -63,14 +88,21 @@ function Feed() {
                       i.quantity <= i.reorderLevel ? "🟡 Low" :
                       "🟢 OK"}
                   </td>
+                  <td>
+                    <button style={styles.editBtn}
+                      onClick={() => handleEdit(i)}>Edit</button>
+                    {isAdmin && (
+                      <button style={styles.deleteBtn}
+                        onClick={() => handleDelete(i._id)}>Delete</button>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
 
-        {/* Add New Feed Type */}
-        <h3 style={styles.subtitle}>Add New Feed Type</h3>
+        <h3 style={styles.subtitle}>{editId ? "✏️ Edit Feed Type" : "Add New Feed Type"}</h3>
         <div style={styles.form}>
           <input style={styles.input} placeholder="Feed Name (Layers Mash)"
             value={newFeed.name}
@@ -81,10 +113,17 @@ function Feed() {
           <input style={styles.input} type="number" placeholder="Reorder Level"
             value={newFeed.reorderLevel}
             onChange={(e) => setNewFeed({...newFeed, reorderLevel: e.target.value})} />
-          <button style={styles.button} onClick={addFeed}>Add Feed Type</button>
+          <button style={styles.button} onClick={addFeed}>
+            {editId ? "Update Feed" : "Add Feed Type"}
+          </button>
+          {editId && (
+            <button style={styles.cancelBtn} onClick={() => {
+              setEditId(null);
+              setNewFeed({ name: "", unit: "", reorderLevel: "" });
+            }}>Cancel</button>
+          )}
         </div>
 
-        {/* Update Stock */}
         <h3 style={styles.subtitle}>Update Stock</h3>
         <div style={styles.form}>
           <select style={styles.input}
@@ -122,7 +161,13 @@ const styles = {
   form: { display: "flex", flexDirection: "column", gap: 10, maxWidth: 400 },
   input: { padding: 10, borderRadius: 8, border: "1px solid #ccc", fontSize: 16 },
   button: { padding: 12, background: "#2e7d32", color: "white",
-    border: "none", borderRadius: 8, fontSize: 16, cursor: "pointer" }
+    border: "none", borderRadius: 8, fontSize: 16, cursor: "pointer" },
+  cancelBtn: { padding: 12, background: "#757575", color: "white",
+    border: "none", borderRadius: 8, fontSize: 16, cursor: "pointer" },
+  editBtn: { background: "#1565c0", color: "white", border: "none",
+    padding: "4px 8px", borderRadius: 6, cursor: "pointer", marginRight: 4 },
+  deleteBtn: { background: "#c62828", color: "white", border: "none",
+    padding: "4px 8px", borderRadius: 6, cursor: "pointer" }
 };
 
 export default Feed;

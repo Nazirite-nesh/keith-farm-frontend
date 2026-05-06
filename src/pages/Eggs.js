@@ -9,6 +9,9 @@ function Eggs() {
   const [form, setForm] = useState({
     zone: "", collected: "", broken: "", notes: ""
   });
+  const [editId, setEditId] = useState(null);
+  const user = JSON.parse(localStorage.getItem("user"));
+  const isAdmin = user?.user?.role === "admin";
 
   const fetchData = async () => {
     const res = await axios.get(`${API}/api/eggs`);
@@ -19,11 +22,35 @@ function Eggs() {
 
   const handleSubmit = async () => {
     try {
-      await axios.post(`${API}/api/eggs`, form);
+      const net = form.collected - form.broken;
+      if (editId) {
+        await axios.put(`${API}/api/eggs/${editId}`, {...form, net});
+        setEditId(null);
+      } else {
+        await axios.post(`${API}/api/eggs`, form);
+      }
       setForm({ zone: "", collected: "", broken: "", notes: "" });
       fetchData();
     } catch (err) {
-      alert("Error adding record.");
+      alert("Error saving record.");
+    }
+  };
+
+  const handleEdit = (record) => {
+    setEditId(record._id);
+    setForm({
+      zone: record.zone,
+      collected: record.collected,
+      broken: record.broken,
+      notes: record.notes || ""
+    });
+    window.scrollTo(0, 0);
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Delete this record?")) {
+      await axios.delete(`${API}/api/eggs/${id}`);
+      fetchData();
     }
   };
 
@@ -36,7 +63,6 @@ function Eggs() {
       <div style={styles.container}>
         <h2 style={styles.title}>🥚 Egg Production</h2>
 
-        {/* Summary Cards */}
         <div style={styles.cards}>
           <div style={styles.card}>
             <h3>Total Eggs</h3>
@@ -48,7 +74,7 @@ function Eggs() {
           </div>
         </div>
 
-        {/* Form */}
+        <h3 style={styles.subtitle}>{editId ? "✏️ Edit Record" : "Add Record"}</h3>
         <div style={styles.form}>
           <input style={styles.input} placeholder="Zone (Laying Zone A)"
             value={form.zone}
@@ -63,11 +89,16 @@ function Eggs() {
             value={form.notes}
             onChange={(e) => setForm({...form, notes: e.target.value})} />
           <button style={styles.button} onClick={handleSubmit}>
-            Record Eggs
+            {editId ? "Update Record" : "Record Eggs"}
           </button>
+          {editId && (
+            <button style={styles.cancelBtn} onClick={() => {
+              setEditId(null);
+              setForm({ zone: "", collected: "", broken: "", notes: "" });
+            }}>Cancel</button>
+          )}
         </div>
 
-        {/* Table */}
         <div style={styles.tableWrap}>
           <table style={styles.table}>
             <thead>
@@ -77,6 +108,7 @@ function Eggs() {
                 <th>Collected</th>
                 <th>Broken</th>
                 <th>Net</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -87,6 +119,14 @@ function Eggs() {
                   <td>{r.collected}</td>
                   <td style={{color: "#c62828"}}>{r.broken}</td>
                   <td style={{color: "#2e7d32", fontWeight: "bold"}}>{r.net}</td>
+                  <td>
+                    <button style={styles.editBtn}
+                      onClick={() => handleEdit(r)}>Edit</button>
+                    {isAdmin && (
+                      <button style={styles.deleteBtn}
+                        onClick={() => handleDelete(r._id)}>Delete</button>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -100,6 +140,7 @@ function Eggs() {
 const styles = {
   container: { padding: 20, background: "#f4f6f8", minHeight: "100vh" },
   title: { color: "#2e7d32" },
+  subtitle: { color: "#2e7d32" },
   cards: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
     gap: 15, marginBottom: 20 },
   card: { background: "white", padding: 20, borderRadius: 10,
@@ -109,11 +150,17 @@ const styles = {
   input: { padding: 10, borderRadius: 8, border: "1px solid #ccc", fontSize: 16 },
   button: { padding: 12, background: "#2e7d32", color: "white",
     border: "none", borderRadius: 8, fontSize: 16, cursor: "pointer" },
+  cancelBtn: { padding: 12, background: "#757575", color: "white",
+    border: "none", borderRadius: 8, fontSize: 16, cursor: "pointer" },
   tableWrap: { overflowX: "auto" },
   table: { width: "100%", borderCollapse: "collapse", background: "white",
     borderRadius: 10, overflow: "hidden" },
   thead: { background: "#2e7d32", color: "white" },
-  row: { borderBottom: "1px solid #eee", textAlign: "center" }
+  row: { borderBottom: "1px solid #eee", textAlign: "center" },
+  editBtn: { background: "#1565c0", color: "white", border: "none",
+    padding: "4px 8px", borderRadius: 6, cursor: "pointer", marginRight: 4 },
+  deleteBtn: { background: "#c62828", color: "white", border: "none",
+    padding: "4px 8px", borderRadius: 6, cursor: "pointer" }
 };
 
 export default Eggs;

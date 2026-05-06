@@ -15,16 +15,14 @@ function Navbar() {
       <span style={styles.brand}>🌿 Keith's Farm</span>
       <div style={styles.links}>
         <button style={styles.btn} onClick={() => navigate("/dashboard")}>Dashboard</button>
-        <button style={styles.btn} onClick={() => navigate("/income")}>Income</button>
-        <button style={styles.btn} onClick={() => navigate("/expenses")}>Expenses</button>
+        {isAdmin && <button style={styles.btn} onClick={() => navigate("/income")}>Income</button>}
+        {isAdmin && <button style={styles.btn} onClick={() => navigate("/expenses")}>Expenses</button>}
         <button style={styles.btn} onClick={() => navigate("/animals")}>Animals</button>
         <button style={styles.btn} onClick={() => navigate("/eggs")}>Eggs</button>
         <button style={styles.btn} onClick={() => navigate("/feed")}>Feed</button>
         <button style={styles.btn} onClick={() => navigate("/health")}>Health</button>
-        <button style={styles.btn} onClick={() => navigate("/profitloss")}>P&L</button>
-        {isAdmin && (
-          <button style={styles.btn} onClick={() => navigate("/workers")}>Workers</button>
-        )}
+        {isAdmin && <button style={styles.btn} onClick={() => navigate("/profitloss")}>P&L</button>}
+        {isAdmin && <button style={styles.btn} onClick={() => navigate("/workers")}>Workers</button>}
         <button style={styles.logoutBtn} onClick={logout}>Logout</button>
       </div>
     </div>
