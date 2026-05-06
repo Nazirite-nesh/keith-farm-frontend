@@ -9,7 +9,7 @@ import Feed from "./pages/Feed";
 import Health from "./pages/Health";
 import ProfitLoss from "./pages/ProfitLoss";
 import Workers from "./pages/Workers";
-import bg from "../public/Background.png";
+import bg from "./Background.png";
 
 function App() {
   return (
