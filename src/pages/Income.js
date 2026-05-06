@@ -11,8 +11,6 @@ function Income() {
     source: "", category: "", quantity: "", unitPrice: ""
   });
   const user = JSON.parse(localStorage.getItem("user"));
-  const role = user?.user?.role || user?.role;
-const isAdmin = role === "admin";
 
   const fetchIncome = async () => {
     const res = await axios.get(`${API}/api/income`);
