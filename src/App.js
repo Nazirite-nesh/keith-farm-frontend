@@ -13,7 +13,7 @@ import Workers from "./pages/Workers";
 function App() {
   return (
     <div style={{
-      backgroundImage: `url(${process.env.PUBLIC_URL}/Background.png)`,
+      backgroundImage: "url('/Background.png')",
       backgroundSize: "cover",
       backgroundPosition: "center",
       backgroundAttachment: "fixed",
