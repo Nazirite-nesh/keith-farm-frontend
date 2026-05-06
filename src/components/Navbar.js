@@ -12,33 +12,22 @@ function Navbar() {
   };
 
   return (
-    <div style={styles.nav}>
-      <span style={styles.brand}>🌿 Keith's Farm</span>
-      <div style={styles.links}>
-        <button style={styles.btn} onClick={() => navigate("/dashboard")}>Dashboard</button>
-        {isAdmin && <button style={styles.btn} onClick={() => navigate("/income")}>Income</button>}
-        {isAdmin && <button style={styles.btn} onClick={() => navigate("/expenses")}>Expenses</button>}
-        <button style={styles.btn} onClick={() => navigate("/animals")}>Animals</button>
-        <button style={styles.btn} onClick={() => navigate("/eggs")}>Eggs</button>
-        <button style={styles.btn} onClick={() => navigate("/feed")}>Feed</button>
-        <button style={styles.btn} onClick={() => navigate("/health")}>Health</button>
-        {isAdmin && <button style={styles.btn} onClick={() => navigate("/profitloss")}>P&L</button>}
-        {isAdmin && <button style={styles.btn} onClick={() => navigate("/workers")}>Workers</button>}
-        <button style={styles.logoutBtn} onClick={logout}>Logout</button>
+    <div style={{background:"#2e7d32",padding:"10px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap"}}>
+      <span style={{color:"white",fontWeight:"bold",fontSize:18}}>Keith's Farm</span>
+      <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+        <button style={{background:"transparent",color:"white",border:"1px solid white",padding:"6px 12px",borderRadius:6,cursor:"pointer"}} onClick={() => navigate("/dashboard")}>Dashboard</button>
+        {isAdmin && <button style={{background:"transparent",color:"white",border:"1px solid white",padding:"6px 12px",borderRadius:6,cursor:"pointer"}} onClick={() => navigate("/income")}>Income</button>}
+        {isAdmin && <button style={{background:"transparent",color:"white",border:"1px solid white",padding:"6px 12px",borderRadius:6,cursor:"pointer"}} onClick={() => navigate("/expenses")}>Expenses</button>}
+        <button style={{background:"transparent",color:"white",border:"1px solid white",padding:"6px 12px",borderRadius:6,cursor:"pointer"}} onClick={() => navigate("/animals")}>Animals</button>
+        <button style={{background:"transparent",color:"white",border:"1px solid white",padding:"6px 12px",borderRadius:6,cursor:"pointer"}} onClick={() => navigate("/eggs")}>Eggs</button>
+        <button style={{background:"transparent",color:"white",border:"1px solid white",padding:"6px 12px",borderRadius:6,cursor:"pointer"}} onClick={() => navigate("/feed")}>Feed</button>
+        <button style={{background:"transparent",color:"white",border:"1px solid white",padding:"6px 12px",borderRadius:6,cursor:"pointer"}} onClick={() => navigate("/health")}>Health</button>
+        {isAdmin && <button style={{background:"transparent",color:"white",border:"1px solid white",padding:"6px 12px",borderRadius:6,cursor:"pointer"}} onClick={() => navigate("/profitloss")}>P&L</button>}
+        {isAdmin && <button style={{background:"transparent",color:"white",border:"1px solid white",padding:"6px 12px",borderRadius:6,cursor:"pointer"}} onClick={() => navigate("/workers")}>Workers</button>}
+        <button style={{background:"#c62828",color:"white",border:"none",padding:"6px 12px",borderRadius:6,cursor:"pointer"}} onClick={logout}>Logout</button>
       </div>
     </div>
   );
 }
-
-const styles = {
-  nav: { background: "#2e7d32", padding: "10px 20px", display: "flex",
-    justifyContent: "space-between", alignItems: "center", flexWrap: "wrap" },
-  brand: { color: "white", fontWeight: "bold", fontSize: 18 },
-  links: { display: "flex", gap: 8, flexWrap: "wrap" },
-  btn: { background: "transparent", color: "white", border: "1px solid white",
-    padding: "6px 12px", borderRadius: 6, cursor: "pointer" },
-  logoutBtn: { background: "#c62828", color: "white", border: "none",
-    padding: "6px 12px", borderRadius: 6, cursor: "pointer" }
-};
 
 export default Navbar;
