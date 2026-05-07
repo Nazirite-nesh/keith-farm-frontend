@@ -127,7 +127,7 @@ function Income() {
 }
 
 const styles = {
-  container: { padding: 20, background: "#f4f6f8", minHeight: "100vh" },
+  container: { padding: 20, background: "rgba(255,255,255,0.88)", minHeight: "100vh" },
   title: { color: "#2e7d32" },
   subtitle: { color: "#2e7d32" },
   totalCard: { background: "white", padding: 15, borderRadius: 10,
