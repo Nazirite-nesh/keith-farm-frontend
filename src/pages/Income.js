@@ -24,7 +24,8 @@ function Income() {
         await axios.put(`${API}/api/income/${editId}`, form);
         setEditId(null);
       } else {
-        await axios.post(`${API}/api/income`, form);
+        const userName = JSON.parse(localStorage.getItem("user"))?.user?.name || JSON.parse(localStorage.getItem("user"))?.name;
+        await axios.post(`${API}/api/income`, {...form, createdBy: userName});
       }
       setForm({ source: "", category: "", quantity: "", unitPrice: "" });
       fetchIncome();

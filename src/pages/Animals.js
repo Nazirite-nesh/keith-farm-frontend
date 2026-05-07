@@ -28,7 +28,8 @@ function Animals() {
         await axios.put(`${API}/api/animals/${editId}`, form);
         setEditId(null);
       } else {
-        await axios.post(`${API}/api/animals`, form);
+        const userName = JSON.parse(localStorage.getItem("user"))?.user?.name || JSON.parse(localStorage.getItem("user"))?.name;
+        await axios.post(`${API}/api/animals`, {...form, createdBy: userName});
       }
       setForm({ tag: "", type: "", breed: "", weight: "", pen: "", sex: "" });
       fetchAnimals();

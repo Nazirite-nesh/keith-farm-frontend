@@ -28,7 +28,8 @@ const isAdmin = role === "admin";
         await axios.put(`${API}/api/eggs/${editId}`, {...form, net});
         setEditId(null);
       } else {
-        await axios.post(`${API}/api/eggs`, form);
+        const userName = JSON.parse(localStorage.getItem("user"))?.user?.name || JSON.parse(localStorage.getItem("user"))?.name;
+        await axios.post(`${API}/api/eggs`, {...form, createdBy: userName});
       }
       setForm({ zone: "", collected: "", broken: "", notes: "" });
       fetchData();

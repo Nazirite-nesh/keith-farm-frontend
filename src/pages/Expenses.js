@@ -24,7 +24,8 @@ function Expenses() {
         await axios.put(`${API}/api/expense/${editId}`, form);
         setEditId(null);
       } else {
-        await axios.post(`${API}/api/expense`, form);
+        const userName = JSON.parse(localStorage.getItem("user"))?.user?.name || JSON.parse(localStorage.getItem("user"))?.name;
+        await axios.post(`${API}/api/expense`, {...form, createdBy: userName});
       }
       setForm({ category: "", amount: "", notes: "" });
       fetchExpenses();
