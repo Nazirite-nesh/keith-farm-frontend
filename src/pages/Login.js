@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import bg from "../Background.png";
-import logo from "../../public/Logo.png";
+import logo from "../Logo.png";
 
 const API = "https://keith-farm-backend.onrender.com";
 
