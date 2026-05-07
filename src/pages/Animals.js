@@ -7,13 +7,12 @@ const API = "https://keith-farm-backend.onrender.com";
 function Animals() {
   const [animals, setAnimals] = useState([]);
   const [filter, setFilter] = useState("All");
-  const [form, setForm] = useState({
-    tag: "", type: "", breed: "", weight: "", pen: "", sex: ""
-  });
+  const [form, setForm] = useState({ tag: "", type: "", breed: "", weight: "", pen: "", sex: "" });
   const [editId, setEditId] = useState(null);
   const user = JSON.parse(localStorage.getItem("user"));
   const role = user?.user?.role || user?.role;
   const isAdmin = role === "admin";
+  const userName = user?.user?.name || user?.name;
 
   const fetchAnimals = async () => {
     const res = await axios.get(`${API}/api/animals`);
@@ -28,7 +27,6 @@ function Animals() {
         await axios.put(`${API}/api/animals/${editId}`, form);
         setEditId(null);
       } else {
-        const userName = JSON.parse(localStorage.getItem("user"))?.user?.name || JSON.parse(localStorage.getItem("user"))?.name;
         await axios.post(`${API}/api/animals`, {...form, createdBy: userName});
       }
       setForm({ tag: "", type: "", breed: "", weight: "", pen: "", sex: "" });
@@ -40,10 +38,7 @@ function Animals() {
 
   const handleEdit = (animal) => {
     setEditId(animal._id);
-    setForm({
-      tag: animal.tag, type: animal.type, breed: animal.breed,
-      weight: animal.weight, pen: animal.pen, sex: animal.sex
-    });
+    setForm({ tag: animal.tag, type: animal.type, breed: animal.breed, weight: animal.weight, pen: animal.pen, sex: animal.sex });
     window.scrollTo(0, 0);
   };
 
@@ -59,17 +54,14 @@ function Animals() {
     fetchAnimals();
   };
 
-  const filtered = animals.filter(a =>
-    filter === "All" ? true : a.status === filter
-  );
+  const filtered = animals.filter(a => filter === "All" ? true : a.status === filter);
 
   return (
     <div>
       <Navbar />
       <div style={styles.container}>
         <h2 style={styles.title}>🐖 Animal Records</h2>
-        <select style={styles.select}
-          onChange={(e) => setFilter(e.target.value)}>
+        <select style={styles.select} onChange={(e) => setFilter(e.target.value)}>
           <option>All</option>
           <option>Active</option>
           <option>Sick</option>
@@ -78,40 +70,20 @@ function Animals() {
         </select>
         <h3 style={styles.subtitle}>{editId ? "✏️ Edit Animal" : "Add Animal"}</h3>
         <div style={styles.form}>
-          <input style={styles.input} placeholder="Tag (PIG-001)"
-            value={form.tag}
-            onChange={(e) => setForm({...form, tag: e.target.value})} />
-          <input style={styles.input} placeholder="Type (Pig/Layer/Broiler)"
-            value={form.type}
-            onChange={(e) => setForm({...form, type: e.target.value})} />
-          <input style={styles.input} placeholder="Breed"
-            value={form.breed}
-            onChange={(e) => setForm({...form, breed: e.target.value})} />
-          <input style={styles.input} type="number" placeholder="Weight (kg)"
-            value={form.weight}
-            onChange={(e) => setForm({...form, weight: e.target.value})} />
-          <input style={styles.input} placeholder="Pen"
-            value={form.pen}
-            onChange={(e) => setForm({...form, pen: e.target.value})} />
-          <input style={styles.input} placeholder="Sex (Male/Female)"
-            value={form.sex}
-            onChange={(e) => setForm({...form, sex: e.target.value})} />
-          <button style={styles.button} onClick={handleSubmit}>
-            {editId ? "Update Animal" : "Add Animal"}
-          </button>
-          {editId && (
-            <button style={styles.cancelBtn} onClick={() => {
-              setEditId(null);
-              setForm({ tag: "", type: "", breed: "", weight: "", pen: "", sex: "" });
-            }}>Cancel</button>
-          )}
+          <input style={styles.input} placeholder="Tag (PIG-001)" value={form.tag} onChange={(e) => setForm({...form, tag: e.target.value})} />
+          <input style={styles.input} placeholder="Type (Pig/Layer/Broiler)" value={form.type} onChange={(e) => setForm({...form, type: e.target.value})} />
+          <input style={styles.input} placeholder="Breed" value={form.breed} onChange={(e) => setForm({...form, breed: e.target.value})} />
+          <input style={styles.input} type="number" placeholder="Weight (kg)" value={form.weight} onChange={(e) => setForm({...form, weight: e.target.value})} />
+          <input style={styles.input} placeholder="Pen" value={form.pen} onChange={(e) => setForm({...form, pen: e.target.value})} />
+          <input style={styles.input} placeholder="Sex (Male/Female)" value={form.sex} onChange={(e) => setForm({...form, sex: e.target.value})} />
+          <button style={styles.button} onClick={handleSubmit}>{editId ? "Update Animal" : "Add Animal"}</button>
+          {editId && <button style={styles.cancelBtn} onClick={() => { setEditId(null); setForm({ tag: "", type: "", breed: "", weight: "", pen: "", sex: "" }); }}>Cancel</button>}
         </div>
         <div style={styles.tableWrap}>
           <table style={styles.table}>
             <thead>
               <tr style={styles.thead}>
-                <th>Tag</th><th>Type</th><th>Breed</th>
-                <th>Weight</th><th>Pen</th><th>Status</th><th>Actions</th>
+                <th>Tag</th><th>Type</th><th>Breed</th><th>Weight</th><th>Pen</th><th>Status</th><th>By</th><th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -123,19 +95,15 @@ function Animals() {
                   <td>{a.weight}kg</td>
                   <td>{a.pen}</td>
                   <td>
-                    <span style={{...styles.badge, background:
-                      a.status==="Active"?"#2e7d32":
-                      a.status==="Sick"?"#f57c00":
-                      a.status==="Sold"?"#1565c0":"#c62828"}}>
+                    <span style={{...styles.badge, background: a.status==="Active"?"#2e7d32":a.status==="Sick"?"#f57c00":a.status==="Sold"?"#1565c0":"#c62828"}}>
                       {a.status}
                     </span>
                   </td>
+                  <td style={{fontSize:12,color:"#555"}}>{a.createdBy || "-"}</td>
                   <td>
                     <button style={styles.editBtn} onClick={() => handleEdit(a)}>Edit</button>
                     {isAdmin && <button style={styles.deleteBtn} onClick={() => handleDelete(a._id)}>Delete</button>}
-                    <select style={styles.smallSelect}
-                      onChange={(e) => handleStatus(a._id, e.target.value)}
-                      defaultValue={a.status}>
+                    <select style={styles.smallSelect} onChange={(e) => handleStatus(a._id, e.target.value)} defaultValue={a.status}>
                       <option>Active</option>
                       <option>Sick</option>
                       <option>Sold</option>
