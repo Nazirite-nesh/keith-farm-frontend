@@ -9,16 +9,11 @@ import Feed from "./pages/Feed";
 import Health from "./pages/Health";
 import ProfitLoss from "./pages/ProfitLoss";
 import Workers from "./pages/Workers";
+import bg from "./Background.png";
 
 function App() {
   return (
-    <div style={{
-      backgroundImage: `url(${process.env.PUBLIC_URL}/Background.png)`,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      backgroundAttachment: "fixed",
-      minHeight: "100vh"
-    }}>
+    <div style={{backgroundImage:`url(${bg})`,backgroundSize:"cover",backgroundPosition:"center",backgroundAttachment:"fixed",minHeight:"100vh"}}>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Login />} />
