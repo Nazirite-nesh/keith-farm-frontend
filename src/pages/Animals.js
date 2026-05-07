@@ -152,7 +152,7 @@ function Animals() {
 }
 
 const styles = {
-  container:{padding:20,background:"#f4f6f8",minHeight:"100vh"},
+  container:{padding:20,background:"rgba(255,255,255,0.88)",minHeight:"100vh"},
   title:{color:"#2e7d32"},
   subtitle:{color:"#2e7d32"},
   select:{padding:8,borderRadius:8,border:"1px solid #ccc",marginBottom:15,fontSize:14},
