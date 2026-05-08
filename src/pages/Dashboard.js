@@ -38,7 +38,7 @@ function Dashboard() {
         const totalExpense = expenseRes.data.reduce((a, b) => a + b.amount, 0);
         const totalEggs = eggsRes.data.reduce((a, b) => a + b.net, 0);
         const totalIncubator = incubatorRes.data.reduce((a, b) => a + Number(b.eggs), 0);
-        const availableEggs = totalEggs - totalIncubator;
+        
         const activeAnimals = animalsRes.data.filter(a => a.status === "Active").length;
 
         setStats({ income: totalIncome, expense: totalExpense, animals: activeAnimals, eggs: totalEggs });
