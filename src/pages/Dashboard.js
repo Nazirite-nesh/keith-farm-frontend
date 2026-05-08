@@ -41,7 +41,7 @@ function Dashboard() {
         
         const activeAnimals = animalsRes.data.filter(a => a.status === "Active").length;
 
-        setStats({ income: totalIncome, expense: totalExpense, animals: activeAnimals, eggs: totalEggs });
+        setStats({ income: totalIncome, expense: totalExpense, animals: activeAnimals, eggs: totalEggs - totalIncubator });
 
         // Monthly data
         const monthly = {};
