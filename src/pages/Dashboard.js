@@ -29,9 +29,9 @@ function Dashboard() {
           axios.get(`${API}/api/expense`),
           axios.get(`${API}/api/animals`),
           axios.get(`${API}/api/eggs`),
-          axios.get(`${API}/api/incubator`).catch(() => ({data:[]})),
           axios.get(`${API}/api/feed`),
-          axios.get(`${API}/api/health`)
+          axios.get(`${API}/api/health`),
+          axios.get(`${API}/api/incubator`).catch(() => ({data:[]}))
         ]);
 
         const totalIncome = incomeRes.data.reduce((a, b) => a + b.total, 0);
