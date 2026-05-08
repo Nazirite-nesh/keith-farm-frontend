@@ -43,7 +43,7 @@ function Eggs() {
   const totalBroken = records.reduce((a, b) => a + b.broken, 0);
   const totalIncubator = incubatorRecords.reduce((a, b) => a + Number(b.eggs), 0);
   const totalSold = salesRecords.reduce((a, b) => a + Number(b.quantity), 0);
-  const remainingEggs = totalEggs - totalIncubator - totalSold;
+  const remainingEggs = totalEggs - totalIncubator - totalSold - totalBroken;
   const totalSaleRevenue = salesRecords.reduce((a, b) => a + Number(b.total), 0);
 
   const pieData = [
