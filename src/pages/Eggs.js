@@ -9,8 +9,10 @@ const COLORS = ["#2e7d32","#c62828","#1565c0","#f57c00"];
 function Eggs() {
   const [records, setRecords] = useState([]);
   const [incubatorRecords, setIncubatorRecords] = useState([]);
+  const [salesRecords, setSalesRecords] = useState([]);
   const [form, setForm] = useState({ zone: "", collected: "", broken: "", notes: "" });
   const [incubatorForm, setIncubatorForm] = useState({ eggs: "", notes: "" });
+  const [saleForm, setSaleForm] = useState({ quantity: "", pricePerEgg: "", buyer: "", notes: "" });
   const [editId, setEditId] = useState(null);
   const [activeTab, setActiveTab] = useState("collection");
   const user = JSON.parse(localStorage.getItem("user"));
@@ -18,12 +20,14 @@ function Eggs() {
   const userName = user?.user?.name || user?.name;
 
   const fetchData = async () => {
-    const res = await axios.get(`${API}/api/eggs`);
-    setRecords(res.data);
-    try {
-      const incRes = await axios.get(`${API}/api/incubator`);
-      setIncubatorRecords(incRes.data);
-    } catch (err) {}
+    const [eggsRes, incRes, salesRes] = await Promise.all([
+      axios.get(`${API}/api/eggs`),
+      axios.get(`${API}/api/incubator`).catch(() => ({data:[]})),
+      axios.get(`${API}/api/eggsales`).catch(() => ({data:[]}))
+    ]);
+    setRecords(eggsRes.data);
+    setIncubatorRecords(incRes.data);
+    setSalesRecords(salesRes.data);
   };
 
   useEffect(() => { fetchData(); }, []);
@@ -38,11 +42,14 @@ function Eggs() {
   const totalEggs = records.reduce((a, b) => a + b.net, 0);
   const totalBroken = records.reduce((a, b) => a + b.broken, 0);
   const totalIncubator = incubatorRecords.reduce((a, b) => a + Number(b.eggs), 0);
-  const remainingEggs = totalEggs - totalIncubator;
+  const totalSold = salesRecords.reduce((a, b) => a + Number(b.quantity), 0);
+  const remainingEggs = totalEggs - totalIncubator - totalSold;
+  const totalSaleRevenue = salesRecords.reduce((a, b) => a + Number(b.total), 0);
 
   const pieData = [
-    { name: "Available", value: remainingEggs },
+    { name: "Available", value: remainingEggs > 0 ? remainingEggs : 0 },
     { name: "Incubator", value: totalIncubator },
+    { name: "Sold", value: totalSold },
     { name: "Broken", value: totalBroken }
   ];
 
@@ -64,9 +71,7 @@ function Eggs() {
       }
       setForm({ zone: "", collected: "", broken: "", notes: "" });
       fetchData();
-    } catch (err) {
-      alert("Error saving record.");
-    }
+    } catch (err) { alert("Error saving record."); }
   };
 
   const handleIncubator = async () => {
@@ -74,9 +79,19 @@ function Eggs() {
       await axios.post(`${API}/api/incubator`, { ...incubatorForm, createdBy: userName });
       setIncubatorForm({ eggs: "", notes: "" });
       fetchData();
-    } catch (err) {
-      alert("Error saving incubator record.");
-    }
+    } catch (err) { alert("Error saving incubator record."); }
+  };
+
+  const handleSale = async () => {
+    try {
+      if (Number(saleForm.quantity) > remainingEggs) {
+        alert(`Not enough eggs! Available: ${remainingEggs}`);
+        return;
+      }
+      await axios.post(`${API}/api/eggsales`, { ...saleForm, createdBy: userName });
+      setSaleForm({ quantity: "", pricePerEgg: "", buyer: "", notes: "" });
+      fetchData();
+    } catch (err) { alert("Error recording sale."); }
   };
 
   const handleEdit = (record) => {
@@ -93,8 +108,15 @@ function Eggs() {
   };
 
   const handleDeleteIncubator = async (id) => {
-    if (window.confirm("Delete this record?")) {
+    if (window.confirm("Delete?")) {
       await axios.delete(`${API}/api/incubator/${id}`);
+      fetchData();
+    }
+  };
+
+  const handleDeleteSale = async (id) => {
+    if (window.confirm("Delete?")) {
+      await axios.delete(`${API}/api/eggsales/${id}`);
       fetchData();
     }
   };
@@ -113,7 +135,9 @@ function Eggs() {
           <div style={styles.card}><h4>Total</h4><p style={styles.kpi}>{totalEggs}</p></div>
           <div style={styles.card}><h4>🔴 Broken</h4><p style={{...styles.kpi,color:"#c62828"}}>{totalBroken}</p></div>
           <div style={styles.card}><h4>🐣 Incubator</h4><p style={{...styles.kpi,color:"#1565c0"}}>{totalIncubator}</p></div>
+          <div style={styles.card}><h4>🛒 Sold</h4><p style={{...styles.kpi,color:"#f57c00"}}>{totalSold}</p></div>
           <div style={{...styles.card,background:"#e8f5e9"}}><h4>✅ Available</h4><p style={{...styles.kpi,color:"#2e7d32"}}>{remainingEggs}</p></div>
+          <div style={styles.card}><h4>💰 Sale Revenue</h4><p style={{...styles.kpi,color:"#2e7d32",fontSize:16}}>KES {totalSaleRevenue.toLocaleString()}</p></div>
         </div>
 
         {/* Charts */}
@@ -144,7 +168,8 @@ function Eggs() {
 
         {/* Tabs */}
         <div style={styles.tabs}>
-          <button style={{...styles.tab,...(activeTab==="collection"?styles.activeTab:{})}} onClick={() => setActiveTab("collection")}>Egg Collection</button>
+          <button style={{...styles.tab,...(activeTab==="collection"?styles.activeTab:{})}} onClick={() => setActiveTab("collection")}>Collection</button>
+          <button style={{...styles.tab,...(activeTab==="sales"?styles.activeTab:{})}} onClick={() => setActiveTab("sales")}>🛒 Sales</button>
           <button style={{...styles.tab,...(activeTab==="incubator"?styles.activeTab:{})}} onClick={() => setActiveTab("incubator")}>🐣 Incubator</button>
         </div>
 
@@ -152,26 +177,21 @@ function Eggs() {
           <>
             <h3 style={styles.subtitle}>{editId ? "✏️ Edit Record" : "Add Collection"}</h3>
             <div style={styles.form}>
-              <input style={styles.input} placeholder="Zone (Laying Zone A)" value={form.zone} onChange={(e) => setForm({...form, zone: e.target.value})} />
+              <input style={styles.input} placeholder="Zone" value={form.zone} onChange={(e) => setForm({...form, zone: e.target.value})} />
               <input style={styles.input} type="number" placeholder="Collected" value={form.collected} onChange={(e) => setForm({...form, collected: e.target.value})} />
               <input style={styles.input} type="number" placeholder="Broken" value={form.broken} onChange={(e) => setForm({...form, broken: e.target.value})} />
-              <input style={styles.input} placeholder="Notes (optional)" value={form.notes} onChange={(e) => setForm({...form, notes: e.target.value})} />
+              <input style={styles.input} placeholder="Notes" value={form.notes} onChange={(e) => setForm({...form, notes: e.target.value})} />
               <button style={styles.button} onClick={handleSubmit}>{editId ? "Update" : "Record Eggs"}</button>
               {editId && <button style={styles.cancelBtn} onClick={() => { setEditId(null); setForm({ zone: "", collected: "", broken: "", notes: "" }); }}>Cancel</button>}
             </div>
             <div style={styles.tableWrap}>
               <table style={styles.table}>
-                <thead>
-                  <tr style={styles.thead}>
-                    <th>Date</th><th>Zone</th><th>Collected</th><th>Broken</th><th>Net</th><th>By</th><th>Actions</th>
-                  </tr>
-                </thead>
+                <thead><tr style={styles.thead}><th>Date</th><th>Zone</th><th>Collected</th><th>Broken</th><th>Net</th><th>By</th><th>Actions</th></tr></thead>
                 <tbody>
                   {records.map((r) => (
                     <tr key={r._id} style={styles.row}>
                       <td>{new Date(r.date).toLocaleDateString()}</td>
-                      <td>{r.zone}</td>
-                      <td>{r.collected}</td>
+                      <td>{r.zone}</td><td>{r.collected}</td>
                       <td style={{color:"#c62828"}}>{r.broken}</td>
                       <td style={{color:"#2e7d32",fontWeight:"bold"}}>{r.net}</td>
                       <td style={{fontSize:12,color:"#555"}}>{r.createdBy || "-"}</td>
@@ -187,21 +207,51 @@ function Eggs() {
           </>
         )}
 
+        {activeTab === "sales" && (
+          <>
+            <div style={styles.availableBox}>
+              <h3>Available Eggs: <span style={{color:"#2e7d32"}}>{remainingEggs}</span></h3>
+            </div>
+            <h3 style={styles.subtitle}>Record Egg Sale</h3>
+            <div style={styles.form}>
+              <input style={styles.input} type="number" placeholder="Quantity to Sell" value={saleForm.quantity} onChange={(e) => setSaleForm({...saleForm, quantity: e.target.value})} />
+              <input style={styles.input} type="number" placeholder="Price Per Egg (KES)" value={saleForm.pricePerEgg} onChange={(e) => setSaleForm({...saleForm, pricePerEgg: e.target.value})} />
+              <input style={styles.input} placeholder="Buyer Name" value={saleForm.buyer} onChange={(e) => setSaleForm({...saleForm, buyer: e.target.value})} />
+              <input style={styles.input} placeholder="Notes" value={saleForm.notes} onChange={(e) => setSaleForm({...saleForm, notes: e.target.value})} />
+              <button style={styles.button} onClick={handleSale}>Record Sale</button>
+            </div>
+            <div style={styles.tableWrap}>
+              <table style={styles.table}>
+                <thead><tr style={styles.thead}><th>Date</th><th>Qty</th><th>Price</th><th>Total</th><th>Buyer</th><th>By</th><th>Actions</th></tr></thead>
+                <tbody>
+                  {salesRecords.map((r) => (
+                    <tr key={r._id} style={styles.row}>
+                      <td>{new Date(r.date).toLocaleDateString()}</td>
+                      <td>{r.quantity}</td>
+                      <td>KES {r.pricePerEgg}</td>
+                      <td style={{color:"#2e7d32",fontWeight:"bold"}}>KES {r.total}</td>
+                      <td>{r.buyer}</td>
+                      <td style={{fontSize:12,color:"#555"}}>{r.createdBy || "-"}</td>
+                      <td>{isAdmin && <button style={styles.deleteBtn} onClick={() => handleDeleteSale(r._id)}>Delete</button>}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
+
         {activeTab === "incubator" && (
           <>
             <h3 style={styles.subtitle}>🐣 Record Eggs for Incubator</h3>
             <div style={styles.form}>
               <input style={styles.input} type="number" placeholder="Number of Eggs" value={incubatorForm.eggs} onChange={(e) => setIncubatorForm({...incubatorForm, eggs: e.target.value})} />
-              <input style={styles.input} placeholder="Notes (optional)" value={incubatorForm.notes} onChange={(e) => setIncubatorForm({...incubatorForm, notes: e.target.value})} />
+              <input style={styles.input} placeholder="Notes" value={incubatorForm.notes} onChange={(e) => setIncubatorForm({...incubatorForm, notes: e.target.value})} />
               <button style={styles.button} onClick={handleIncubator}>Record Incubator</button>
             </div>
             <div style={styles.tableWrap}>
               <table style={styles.table}>
-                <thead>
-                  <tr style={styles.thead}>
-                    <th>Date</th><th>Eggs</th><th>Notes</th><th>By</th><th>Actions</th>
-                  </tr>
-                </thead>
+                <thead><tr style={styles.thead}><th>Date</th><th>Eggs</th><th>Notes</th><th>By</th><th>Actions</th></tr></thead>
                 <tbody>
                   {incubatorRecords.map((r) => (
                     <tr key={r._id} style={styles.row}>
@@ -234,6 +284,7 @@ const styles = {
   tabs:{display:"flex",gap:10,marginBottom:15},
   tab:{padding:"8px 20px",borderRadius:8,border:"1px solid #2e7d32",background:"white",color:"#2e7d32",cursor:"pointer"},
   activeTab:{background:"#2e7d32",color:"white"},
+  availableBox:{background:"#e8f5e9",padding:15,borderRadius:10,marginBottom:15},
   form:{display:"flex",flexDirection:"column",gap:10,maxWidth:400,marginBottom:20},
   input:{padding:10,borderRadius:8,border:"1px solid #ccc",fontSize:16},
   button:{padding:12,background:"#2e7d32",color:"white",border:"none",borderRadius:8,fontSize:16,cursor:"pointer"},
