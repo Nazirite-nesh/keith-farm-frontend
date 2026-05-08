@@ -24,14 +24,15 @@ function Dashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [incomeRes, expenseRes, animalsRes, eggsRes, feedRes, healthRes, incubatorRes] = await Promise.all([
+        const [incomeRes, expenseRes, animalsRes, eggsRes, feedRes, healthRes, incubatorRes, eggSalesRes] = await Promise.all([
           axios.get(`${API}/api/income`),
           axios.get(`${API}/api/expense`),
           axios.get(`${API}/api/animals`),
           axios.get(`${API}/api/eggs`),
           axios.get(`${API}/api/feed`),
           axios.get(`${API}/api/health`),
-          axios.get(`${API}/api/incubator`).catch(() => ({data:[]}))
+          axios.get(`${API}/api/incubator`).catch(() => ({data:[]})),
+          axios.get(`${API}/api/eggsales`).catch(() => ({data:[]}))
         ]);
 
         const totalIncome = incomeRes.data.reduce((a, b) => a + b.total, 0);
@@ -41,7 +42,7 @@ function Dashboard() {
         
         const activeAnimals = animalsRes.data.filter(a => a.status === "Active").length;
 
-        setStats({ income: totalIncome, expense: totalExpense, animals: activeAnimals, eggs: totalEggs - totalIncubator - eggsRes.data.reduce((a, b) => a + b.broken, 0) });
+        setStats({ income: totalIncome, expense: totalExpense, animals: activeAnimals, eggs: totalEggs - (totalIncubator + eggsRes.data.reduce((a, b) => a + b.broken, 0) + eggSalesRes.data.reduce((a, b) => a + Number(b.quantity), 0)) });
 
         // Monthly data
         const monthly = {};
