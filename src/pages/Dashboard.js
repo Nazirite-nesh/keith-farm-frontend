@@ -24,11 +24,12 @@ function Dashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [incomeRes, expenseRes, animalsRes, eggsRes, feedRes, healthRes] = await Promise.all([
+        const [incomeRes, expenseRes, animalsRes, eggsRes, feedRes, healthRes, incubatorRes] = await Promise.all([
           axios.get(`${API}/api/income`),
           axios.get(`${API}/api/expense`),
           axios.get(`${API}/api/animals`),
           axios.get(`${API}/api/eggs`),
+          axios.get(`${API}/api/incubator`).catch(() => ({data:[]})),
           axios.get(`${API}/api/feed`),
           axios.get(`${API}/api/health`)
         ]);
@@ -36,6 +37,8 @@ function Dashboard() {
         const totalIncome = incomeRes.data.reduce((a, b) => a + b.total, 0);
         const totalExpense = expenseRes.data.reduce((a, b) => a + b.amount, 0);
         const totalEggs = eggsRes.data.reduce((a, b) => a + b.net, 0);
+        const totalIncubator = incubatorRes.data.reduce((a, b) => a + Number(b.eggs), 0);
+        const availableEggs = totalEggs - totalIncubator;
         const activeAnimals = animalsRes.data.filter(a => a.status === "Active").length;
 
         setStats({ income: totalIncome, expense: totalExpense, animals: activeAnimals, eggs: totalEggs });
