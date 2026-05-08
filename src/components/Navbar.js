@@ -58,6 +58,7 @@ function Navbar() {
         <button style={styles.btn} onClick={() => navigate("/health")}>Health</button>
         {isAdmin && <button style={styles.btn} onClick={() => navigate("/profitloss")}>P&L</button>}
         {isAdmin && <button style={styles.btn} onClick={() => navigate("/workers")}>Workers</button>}
+        {isAdmin && <button style={styles.btn} onClick={() => navigate("/reports")}>Reports</button>}
         <button style={styles.logoutBtn} onClick={logout}>Logout</button>
       </div>
     </div>
