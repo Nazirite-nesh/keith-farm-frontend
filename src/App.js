@@ -10,6 +10,7 @@ import Health from "./pages/Health";
 import ProfitLoss from "./pages/ProfitLoss";
 import Workers from "./pages/Workers";
 import Reports from "./pages/Reports";
+import Alerts from "./pages/Alerts";
 import bg from "./Background.png";
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
           <Route path="/profitloss" element={<ProfitLoss />} />
           <Route path="/workers" element={<Workers />} />
           <Route path="/reports" element={<Reports />} />
+          <Route path="/alerts" element={<Alerts />} />
         </Routes>
       </BrowserRouter>
     </div>
